@@ -16,12 +16,14 @@ const Profile = () => {
     fetchPosts();
   }, []);
 
+  const userPosts = posts.filter(p => p.user === user._id)
+
   return (
     <div className="container mt-4">
       <h2 className="mb-4">Bienvenido, {user?.nickName}</h2>
       <h4>Tus publicaciones:</h4>
       <div className="list-group">
-        {posts.map(post => (
+        {userPosts.map(post => (
           <div key={post._id} className="list-group-item">
             <h5>{post.description}</h5>
             <h6>{new Date(post.createdAt).toLocaleDateString()}</h6>

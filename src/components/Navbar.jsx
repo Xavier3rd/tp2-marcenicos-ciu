@@ -35,6 +35,9 @@ const Navbar = () => {
                   <Link className="nav-link" to="/feed">Inicio</Link>
                 </li>
                 <li className="nav-item">
+                  <Link className="nav-link" to="/Profile">Perfil</Link>
+                </li>
+                <li className="nav-item">
                   <button onClick={handleLogout} className="btn btn-outline-danger ms-2">
                     Cerrar sesión
                   </button>

@@ -76,7 +76,8 @@ function Login() {
             Ingresar
           </button>
           
-          <Link to='/register'>¿No sos usuario? Registrate</Link>
+          <Link to='/register'>¿No sos usuario? Registrate</Link> <br></br>
+          <Link to='/'>Volver al inicio</Link>
         </form>
       </div>
     </div>

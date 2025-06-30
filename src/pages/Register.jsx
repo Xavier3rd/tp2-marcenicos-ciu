@@ -1,19 +1,54 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../contexts/UserContext";
 
 const Register = () => {
   const [nickName, setNickname] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState(""); // solo si tu API lo requiere
+  const [password, setPassword] = useState("");
+  const [nicknameError, setNicknameError] = useState(null);
+  const [emailError, setEmailError] = useState(null);
   const navigate = useNavigate();
+  const { checkNicknameExists } = useContext(UserContext);
+
+  // ✅ Validación de email
+  const isValidEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
+  const getEmailError = (email) => {
+    if (!email.trim()) return "El email es obligatorio";
+    if (!isValidEmail(email)) return "El formato del email no es válido";
+    return null;
+  };
+
+  const validateNickname = async () => {
+    if (!nickName.trim()) return;
+
+    const exists = await checkNicknameExists(nickName);
+    setNicknameError(exists ? "Este nickname ya está en uso" : null);
+  };
+
+  const validateEmail = () => {
+    const error = getEmailError(email);
+    setEmailError(error);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const emailValidation = getEmailError(email);
+    if (nicknameError || emailValidation) {
+      setEmailError(emailValidation);
+      alert("Por favor corregí los errores antes de continuar.");
+      return;
+    }
+
     const newUser = {
       nickName,
       email,
-      password, // quitar si no es necesario
+      password,
     };
 
     try {
@@ -25,7 +60,7 @@ const Register = () => {
 
       if (res.ok) {
         alert("Usuario registrado con éxito");
-        navigate("/login"); // redirige al login si querés
+        navigate("/login");
       } else {
         alert("Hubo un error al registrar el usuario");
       }
@@ -39,29 +74,43 @@ const Register = () => {
     <div className="container mt-5">
       <h2>Registrarse</h2>
       <form onSubmit={handleSubmit}>
+        {/* Nickname */}
         <div className="mb-3">
           <label className="form-label">Nickname</label>
           <input
             type="text"
-            className="form-control"
+            className={`form-control ${nicknameError ? "is-invalid" : ""}`}
             value={nickName}
-            onChange={(e) => setNickname(e.target.value)}
+            onChange={(e) => {
+              setNickname(e.target.value);
+              setNicknameError(null);
+            }}
+            onBlur={validateNickname}
             required
           />
+          {nicknameError && (
+            <div className="invalid-feedback">{nicknameError}</div>
+          )}
         </div>
 
+        {/* Email */}
         <div className="mb-3">
           <label className="form-label">Email</label>
           <input
             type="email"
-            className="form-control"
+            className={`form-control ${emailError ? "is-invalid" : ""}`}
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setEmailError(null);
+            }}
+            onBlur={validateEmail}
             required
           />
+          {emailError && <div className="invalid-feedback">{emailError}</div>}
         </div>
 
-        {/* Si tu back espera contraseña, agregá este campo */}
+        {/* Contraseña */}
         <div className="mb-3">
           <label className="form-label">Contraseña</label>
           <input
@@ -73,7 +122,9 @@ const Register = () => {
           />
         </div>
 
-        <button type="submit" className="btn btn-primary">Registrarse</button>
+        <button type="submit" className="btn btn-primary">
+          Registrarse
+        </button>
       </form>
     </div>
   );
